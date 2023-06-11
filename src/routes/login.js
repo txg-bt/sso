@@ -1,7 +1,7 @@
 const { logger } = require("../utils/logger");
-
+const bcrypt = require("bcrypt");
 const router = require("express").Router();
-const { pool } = require("../database/database").pool;
+const { pool } = require("../database/database");
 const jwtGenerator = require("../utils/jwtGenerator").jwtGenerator;
 const validatorMiddleware =
   require("../utils/validatorMiddleware").validatorMiddleware;
@@ -22,7 +22,7 @@ router.post("/login", validatorMiddleware, async (req, res) => {
       });
     }
 
-    const validPass = await compare(password, user.rows[0].password);
+    const validPass = await bcrypt.compare(password, user.rows[0].password);
 
     if (!validPass) {
       logger({ route: "login", statusCode: 401, message: "Incorect password" });

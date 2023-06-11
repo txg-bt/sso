@@ -9,8 +9,7 @@ app.set("port", process.env.PORT || 3000);
 
 app.use("", require("./src/routes/login"));
 app.use("", require("./src/routes/register"));
-
-require("./src/routes/auth");
+app.use("", require("./src/routes/auth"));
 
 app.get("*", async (req, res) => {
   res.status(404).send("404 Not Found");

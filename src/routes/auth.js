@@ -1,42 +1,15 @@
-const WebSocket = require("ws");
 const { logger } = require("../utils/logger");
 require("dotenv").config();
+const router = require("express").Router();
 
 function validateToken(token) {
-  try {
-    const cleanedUpToken = token.replace("Bearer ", "");
+  const cleanedUpToken = token.replace("Bearer ", "");
 
-    if (!cleanedUpToken) {
-      logger({
-        path: "auth",
-        status: 404,
-        message: "No Token",
-      });
-
-      return {
-        user_id: null,
-        isAuthorized: false,
-      };
-    }
-
-    const decoded = jwt.verify(cleanedUpToken, process.env.JWT_SECRET);
-
+  if (!cleanedUpToken) {
     logger({
       path: "auth",
-      status: 200,
-      message: "Atuhorized",
-    });
-
-    return {
-      user_id: decoded.user_id,
-      isAuthorized: true,
-    };
-  } catch (err) {
-    console.log(err.message);
-    logger({
-      path: "auth",
-      status: 500,
-      message: err.message,
+      status: 404,
+      message: "No Token",
     });
 
     return {
@@ -44,38 +17,39 @@ function validateToken(token) {
       isAuthorized: false,
     };
   }
-}
 
-const wss = new WebSocket.Server({ port: 8080 });
+  const decoded = jwt.verify(cleanedUpToken, process.env.JWT_SECRET);
 
-wss.on("connection", (ws) => {
-  console.log("A client connected.");
   logger({
     path: "auth",
     status: 200,
-    message: "Client Connected",
+    message: "Authorized",
   });
 
-  ws.on("message", (request) => {
-    const parsedRequest = JSON.parse(request);
+  return {
+    user_id: decoded.user_id,
+    isAuthorized: true,
+  };
+}
 
+router.get("/auth", (req, res) => {
+  const token = req.headers.authorization;
+
+  try {
     const response = {
-      requestId: parsedRequest.requestId,
-      ...validateToken(parsedRequest.token),
+      ...validateToken(token),
     };
 
-    ws.send(JSON.stringify(response));
-  });
-
-  ws.on("close", () => {
-    console.log("A client disconnected.");
-
+    return res.status(200).json(response);
+  } catch (err) {
     logger({
       path: "auth",
-      status: 200,
-      message: "Client Disconected",
+      status: 500,
+      message: err.message,
     });
-  });
+
+    return res.status(500).json(err.message);
+  }
 });
 
-console.log("WebSocket server is running on port 8080.");
+module.exports = router;

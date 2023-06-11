@@ -1,18 +1,27 @@
-const WebSocket = require("ws");
-
-const loggerSocket = new WebSocket("ws://localhost:8081");
+const axios = require("axios");
+const LOGGER_API_URL = require("../../constants").LOGGER_API_URL;
 
 function logger({ route, statusCode, message, userId }) {
-  loggerSocket.send(
-    JSON.stringify({
-      route,
-      statusCode,
-      message,
-      userId,
-      appName: "sso-service",
-      timestamp: new Date().getTime(),
-    })
-  );
+  try {
+    axios.post(
+      `${LOGGER_API_URL}/`,
+      {
+        route,
+        statusCode,
+        message,
+        userId,
+        appName: "sso-service",
+        timestamp: new Date().getTime(),
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 module.exports = { logger };

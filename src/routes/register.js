@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const { logger } = require("../utils/logger");
 
 const router = require("express").Router();
-const { pool } = require("../database/database").pool;
+const { pool } = require("../database/database");
 const jwtGenerator = require("../utils/jwtGenerator").jwtGenerator;
 const validatorMiddleware =
   require("../utils/validatorMiddleware").validatorMiddleware;
@@ -28,8 +28,8 @@ router.post("/register", validatorMiddleware, async (req, res) => {
     }
 
     const saltRounds = 10;
-    const genSalt = await _genSalt(saltRounds);
-    const hash = await _hash(password, genSalt);
+    const genSalt = await bcrypt.genSalt(saltRounds);
+    const hash = await bcrypt.hash(password, genSalt);
 
     const newUser = await pool.query(
       "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING *",
@@ -42,7 +42,7 @@ router.post("/register", validatorMiddleware, async (req, res) => {
       route: "register",
       statusCode: 201,
       message: "Registered user",
-      userId: user.rows[0].user_id,
+      userId: newUser.rows[0].user_id,
     });
 
     return res.status(201).json({ token });

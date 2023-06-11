@@ -1,5 +1,5 @@
--- CREATE DATABASE sso-service;
--- \c sso-service
+-- CREATE DATABASE sso_service;
+-- \c sso_service
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE users (
