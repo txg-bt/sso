@@ -1,9 +1,9 @@
 const axios = require("axios");
 const LOGGER_API_URL = require("../../constants").LOGGER_API_URL;
 
-function logger({ route, statusCode, message, userId }) {
+async function logger({ route, statusCode, message, userId }) {
   try {
-    axios.post(
+    await axios.post(
       `${LOGGER_API_URL}/`,
       {
         route,

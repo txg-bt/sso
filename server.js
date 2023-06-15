@@ -7,9 +7,9 @@ app.use(express.json());
 app.set("port", process.env.PORT || 3000);
 //app.set("trust proxy", true);
 
-app.use("", require("./src/routes/login"));
-app.use("", require("./src/routes/register"));
-app.use("", require("./src/routes/auth"));
+app.use("/api/v1", require("./src/routes/login"));
+app.use("/api/v1", require("./src/routes/register"));
+app.use("/api/v1", require("./src/routes/auth"));
 
 app.get("*", async (req, res) => {
   res.status(404).send("404 Not Found");
